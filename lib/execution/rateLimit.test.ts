@@ -27,3 +27,34 @@ describe("checkRateLimit (fail-open when unconfigured)", () => {
     expect(result.enabled).toBe(false);
   });
 });
+
+describe("checkRateLimit (with a configured limiter)", () => {
+  it("allows and reports enabled when the limiter succeeds", async () => {
+    const fake = {
+      limit: async () => ({ success: true, limit: 10, remaining: 9, reset: Date.now() + 60_000 }),
+    };
+    const r = await checkRateLimit("1.2.3.4", fake);
+    expect(r).toMatchObject({ allowed: true, enabled: true, limit: 10, remaining: 9 });
+    expect(r.retryAfterSec).toBeGreaterThanOrEqual(0);
+  });
+
+  it("blocks with a Retry-After when the limiter denies", async () => {
+    const fake = {
+      limit: async () => ({ success: false, limit: 10, remaining: 0, reset: Date.now() + 30_000 }),
+    };
+    const r = await checkRateLimit("1.2.3.4", fake);
+    expect(r.allowed).toBe(false);
+    expect(r.retryAfterSec).toBeGreaterThan(0);
+  });
+
+  it("fails OPEN when the limiter throws (store outage)", async () => {
+    const fake = {
+      limit: async () => {
+        throw new Error("redis unreachable");
+      },
+    };
+    const r = await checkRateLimit("1.2.3.4", fake);
+    expect(r.allowed).toBe(true);
+    expect(r.enabled).toBe(false);
+  });
+});

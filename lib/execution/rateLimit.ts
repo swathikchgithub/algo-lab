@@ -47,17 +47,38 @@ export interface RateLimitResult {
   limit: number;
   remaining: number;
   retryAfterSec: number;
-  /** False when limiting is disabled (env not configured). */
+  /** False when limiting is disabled (env not configured) or skipped on error. */
   enabled: boolean;
 }
 
-/** Check (and consume) one token for this client. Fails open if not configured. */
-export async function checkRateLimit(ip: string): Promise<RateLimitResult> {
-  const l = getLimiter();
-  if (!l) {
-    return { allowed: true, limit: MAX_REQUESTS, remaining: MAX_REQUESTS, retryAfterSec: 0, enabled: false };
+/** Minimal shape we need from a limiter — lets tests inject a fake. */
+interface LimiterLike {
+  limit(id: string): Promise<{ success: boolean; limit: number; remaining: number; reset: number }>;
+}
+
+const OPEN: RateLimitResult = {
+  allowed: true,
+  limit: MAX_REQUESTS,
+  remaining: MAX_REQUESTS,
+  retryAfterSec: 0,
+  enabled: false,
+};
+
+/**
+ * Check (and consume) one token for this client. Fails OPEN both when limiting
+ * is unconfigured AND when the backing store errors at runtime — availability of
+ * /api/run is never blocked by a rate-limiter outage.
+ */
+export async function checkRateLimit(ip: string, override?: LimiterLike): Promise<RateLimitResult> {
+  const l: LimiterLike | null = override ?? getLimiter();
+  if (!l) return OPEN;
+
+  try {
+    const { success, limit, remaining, reset } = await l.limit(ip);
+    const retryAfterSec = Math.max(0, Math.ceil((reset - Date.now()) / 1000));
+    return { allowed: success, limit, remaining, retryAfterSec, enabled: true };
+  } catch {
+    // Redis unreachable / transient error → don't block legitimate runs.
+    return OPEN;
   }
-  const { success, limit, remaining, reset } = await l.limit(ip);
-  const retryAfterSec = Math.max(0, Math.ceil((reset - Date.now()) / 1000));
-  return { allowed: success, limit, remaining, retryAfterSec, enabled: true };
 }
