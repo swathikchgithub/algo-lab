@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { LANGUAGES, type Language } from "@/lib/types";
 import { MAX_SOURCE_BYTES, MAX_STDIN_BYTES, type RunRequest } from "@/lib/execution/types";
 import { runCodeOnService } from "@/lib/execution/wandbox";
+import { checkRateLimit, clientIp } from "@/lib/execution/rateLimit";
 
 export const runtime = "nodejs";
 
-// POST /api/run — execute user code via the Piston proxy.
-// Validates strictly at the boundary (fail fast) before touching the service.
+// POST /api/run — execute user code via the Wandbox proxy.
+// Validates strictly at the boundary (fail fast), then rate-limits per IP,
+// before touching the execution service.
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -17,6 +19,15 @@ export async function POST(request: Request) {
 
   const parsed = validate(body);
   if ("error" in parsed) return bad(parsed.error);
+
+  // Throttle per client IP (no-op until Upstash env vars are configured).
+  const rl = await checkRateLimit(clientIp(request));
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: `Rate limit reached (${rl.limit} runs/min). Try again in ${rl.retryAfterSec}s.` },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } },
+    );
+  }
 
   const result = await runCodeOnService(parsed.value);
   // Always 200 — execution outcomes (compile errors, non-zero exit) live in the body.

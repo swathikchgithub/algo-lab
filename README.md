@@ -79,6 +79,19 @@ Each question page has a coding pad (Python/Java tabs, line numbers, autosaved d
 - The `/api/run` route validates the language against an allowlist and caps source/stdin size before calling out. It needs outbound network access at runtime (available on Vercel serverless functions).
 - Java: Wandbox compiles the file as `prog.java`, so a top-level `public class Main` is auto-rewritten to `class Main`; either form works.
 
+### Rate limiting (`/api/run`)
+
+The run endpoint is a public, unauthenticated code-runner, so it is rate-limited **per IP** (10 runs/min, sliding window) via [Upstash Redis](https://upstash.com) — shared state that works across Vercel's stateless serverless instances. It **fails open**: with no Upstash env vars set (local dev, or before you provision it) limiting is disabled and requests pass through; it activates automatically once the vars exist.
+
+To enable it:
+1. Create a free Upstash Redis database (Upstash console, or Vercel → **Storage → Marketplace → Upstash**, which auto-injects the vars).
+2. Set these environment variables (Vercel → **Settings → Environment Variables**, or `.env.local` for local testing):
+   ```
+   UPSTASH_REDIS_REST_URL=...
+   UPSTASH_REDIS_REST_TOKEN=...
+   ```
+3. Redeploy. Exceeding the limit returns `429` with a `Retry-After` header; the coding pad surfaces the message. Tune the window in `lib/execution/rateLimit.ts`.
+
 ## Deploy (Vercel)
 
 ```bash
