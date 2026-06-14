@@ -12,7 +12,19 @@ import {
   sortedSquaresFrames,
   type SquaresView,
 } from "@/lib/algorithms/sortedSquares";
+import { moveZeroesCode, moveZeroesFrames, type ArrayMutView } from "@/lib/algorithms/moveZeroes";
+import { sortColorsCode, sortColorsFrames } from "@/lib/algorithms/sortColors";
+import { removeDuplicatesCode, removeDuplicatesFrames } from "@/lib/algorithms/removeDuplicates";
+import { threeSumCode, threeSumFrames } from "@/lib/algorithms/threeSum";
+import { searchRotatedCode, searchRotatedFrames } from "@/lib/algorithms/searchRotated";
+import { findFirstLastCode, findFirstLastFrames } from "@/lib/algorithms/findFirstLast";
+import {
+  firstUniqueCharCode,
+  firstUniqueCharFrames,
+  type CharsView,
+} from "@/lib/algorithms/firstUniqueChar";
 import { QuestionWalkthrough } from "./QuestionWalkthrough";
+import { StringWalkthrough } from "./StringWalkthrough";
 import type { LegendItem, StageRow } from "./MultiArrayStage";
 
 // Question ids that have a bespoke, question-specific walkthrough. Keep in sync
@@ -22,6 +34,13 @@ const SUPPORTED = new Set<string>([
   "trapping-rain-water",
   "container-with-most-water",
   "squares-of-sorted-array",
+  "move-zeroes",
+  "sort-colors",
+  "remove-duplicates-sorted",
+  "three-sum",
+  "search-in-rotated-sorted-array",
+  "find-first-and-last-position",
+  "first-unique-character",
 ]);
 
 export function hasQuestionVisualizer(id: string): boolean {
@@ -45,6 +64,53 @@ const RESULT_LEGEND: LegendItem[] = [
   { label: "in play / filled", swatch: "bg-cell-active" },
   { label: "processed / empty", swatch: "bg-navy-800" },
 ];
+
+const MOVE_LEGEND: LegendItem[] = [
+  { label: "scan (i)", swatch: "bg-cell-current" },
+  { label: "packed non-zeros", swatch: "bg-cell-active" },
+  { label: "not yet scanned", swatch: "bg-navy-700" },
+];
+
+const SORT_LEGEND: LegendItem[] = [
+  { label: "cursor (mid)", swatch: "bg-cell-current" },
+  { label: "settled (0s, 2s)", swatch: "bg-cell-active" },
+  { label: "unknown", swatch: "bg-navy-700" },
+];
+
+const DEDUPE_LEGEND: LegendItem[] = [
+  { label: "read (i)", swatch: "bg-cell-current" },
+  { label: "unique kept", swatch: "bg-cell-active" },
+  { label: "not yet read", swatch: "bg-navy-700" },
+];
+
+const TRIPLET_LEGEND: LegendItem[] = [
+  { label: "anchor (i)", swatch: "bg-cell-current" },
+  { label: "window [l, r]", swatch: "bg-cell-active" },
+  { label: "out of window", swatch: "bg-navy-800" },
+];
+
+const SEARCH_LEGEND: LegendItem[] = [
+  { label: "mid", swatch: "bg-cell-current" },
+  { label: "window [lo, hi]", swatch: "bg-cell-active" },
+  { label: "discarded", swatch: "bg-navy-800" },
+];
+
+const SCAN_LEGEND: LegendItem[] = [
+  { label: "cursor (i)", swatch: "bg-cell-current" },
+  { label: "scanned", swatch: "bg-cell-active" },
+  { label: "not yet read", swatch: "bg-navy-700" },
+];
+
+/** Single-row stage backed by the live (mutating) array in `frame.view.arr`. */
+function mutatingRow(frame: Frame, label: string): StageRow {
+  const view = frame.view as unknown as ArrayMutView;
+  return {
+    label,
+    values: view.arr,
+    cellStates: frame.cellStates ?? [],
+    pointers: frame.pointers ?? {},
+  };
+}
 
 /**
  * Maps a question id to its bespoke walkthrough. Returns null for ids without
@@ -129,6 +195,100 @@ export function QuestionVisualizer({ questionId }: { questionId: string }) {
               },
             ];
           }}
+        />
+      );
+
+    case "move-zeroes":
+      return (
+        <QuestionWalkthrough
+          codeLines={moveZeroesCode}
+          defaultInput={[0, 1, 0, 3, 12]}
+          patternSlug="two-pointers"
+          generate={(input) => moveZeroesFrames(input).frames}
+          legend={MOVE_LEGEND}
+          rows={(frame: Frame) => [mutatingRow(frame, "nums")]}
+        />
+      );
+
+    case "sort-colors":
+      return (
+        <QuestionWalkthrough
+          codeLines={sortColorsCode}
+          defaultInput={[2, 0, 2, 1, 1, 0]}
+          patternSlug="two-pointers"
+          generate={(input) => sortColorsFrames(input).frames}
+          legend={SORT_LEGEND}
+          rows={(frame: Frame) => [mutatingRow(frame, "nums")]}
+        />
+      );
+
+    case "remove-duplicates-sorted":
+      return (
+        <QuestionWalkthrough
+          codeLines={removeDuplicatesCode}
+          defaultInput={[0, 0, 1, 1, 1, 2, 2, 3, 3, 4]}
+          patternSlug="two-pointers"
+          generate={(input) => removeDuplicatesFrames(input).frames}
+          legend={DEDUPE_LEGEND}
+          rows={(frame: Frame) => [mutatingRow(frame, "nums")]}
+        />
+      );
+
+    case "three-sum":
+      return (
+        <QuestionWalkthrough
+          codeLines={threeSumCode}
+          defaultInput={[-1, 0, 1, 2, -1, -4]}
+          patternSlug="two-pointers"
+          generate={(input) => threeSumFrames(input).frames}
+          legend={TRIPLET_LEGEND}
+          rows={(frame: Frame) => [mutatingRow(frame, "nums")]}
+        />
+      );
+
+    case "search-in-rotated-sorted-array":
+      return (
+        <QuestionWalkthrough
+          codeLines={searchRotatedCode}
+          defaultInput={[4, 5, 6, 7, 0, 1, 2]}
+          param={{ label: "target", value: 0 }}
+          patternSlug="binary-search"
+          generate={(input, target) => searchRotatedFrames(input, target ?? 0).frames}
+          legend={SEARCH_LEGEND}
+          rows={(frame: Frame) => [mutatingRow(frame, "nums")]}
+        />
+      );
+
+    case "find-first-and-last-position":
+      return (
+        <QuestionWalkthrough
+          codeLines={findFirstLastCode}
+          defaultInput={[5, 7, 7, 8, 8, 10]}
+          param={{ label: "target", value: 8 }}
+          patternSlug="binary-search"
+          generate={(input, target) => findFirstLastFrames(input, target ?? 0).frames}
+          legend={SEARCH_LEGEND}
+          rows={(frame: Frame) => [mutatingRow(frame, "nums")]}
+        />
+      );
+
+    case "first-unique-character":
+      return (
+        <StringWalkthrough
+          codeLines={firstUniqueCharCode}
+          defaultInput="leetcode"
+          inputLabel="String"
+          patternSlug="string-hashing"
+          generate={(input) => firstUniqueCharFrames(input).frames}
+          legend={SCAN_LEGEND}
+          rows={(frame: Frame) => [
+            {
+              label: "s",
+              values: (frame.view as unknown as CharsView).chars,
+              cellStates: frame.cellStates ?? [],
+              pointers: frame.pointers ?? {},
+            },
+          ]}
         />
       );
 

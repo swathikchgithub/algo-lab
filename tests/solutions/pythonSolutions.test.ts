@@ -10,18 +10,26 @@ import { PYTHON_SOLUTION_CASES, type SolutionCase } from "@/lib/execution/soluti
 // Kept out of the fast unit suite (run with `npm run test:solutions`) because it
 // shells out to an external interpreter — slower and environment-dependent.
 
-/** Build a self-checking Python program: the solution + a driver that compares. */
-function buildProgram(solution: string, fn: string, { args, expected }: SolutionCase): string {
+/** Build a self-checking Python program: the solution + a driver that compares.
+ *  For in-place functions, the mutated first argument is the result. */
+function buildProgram(
+  solution: string,
+  fn: string,
+  inPlace: boolean,
+  { args, expected }: SolutionCase,
+): string {
   // Args/expected travel as JSON and are parsed Python-side, so list/number
   // values compare exactly without any JS→Python literal translation.
   const argsJson = JSON.stringify(args);
   const expectedJson = JSON.stringify(expected);
+  const got = inPlace ? "_args[0]" : "_ret";
   return `${solution}
 
 import json
 _args = json.loads(r'''${argsJson}''')
 _expected = json.loads(r'''${expectedJson}''')
-_got = ${fn}(*_args)
+_ret = ${fn}(*_args)
+_got = ${got}
 print("PASS" if _got == _expected else "FAIL got=" + repr(_got) + " expected=" + repr(_expected))
 `;
 }
@@ -50,7 +58,7 @@ describe("displayed Python solutions are correct", () => {
 
     spec.cases.forEach((testCase) => {
       it(`${id}: ${spec.fn}(${JSON.stringify(testCase.args)}) === ${JSON.stringify(testCase.expected)}`, () => {
-        const program = buildProgram(question!.solutions.python, spec.fn, testCase);
+        const program = buildProgram(question!.solutions.python, spec.fn, spec.inPlace ?? false, testCase);
         expect(runPython(program)).toBe("PASS");
       });
     });

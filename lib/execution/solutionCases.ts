@@ -17,6 +17,9 @@ export interface SolutionCase {
 export interface SolutionSpec {
   /** The function defined by the question's `solutions.python`, e.g. "trap". */
   fn: string;
+  /** True when the function mutates its first argument in place and returns
+   *  nothing (e.g. move_zeroes, sort_colors) — compare the argument, not the return. */
+  inPlace?: boolean;
   cases: SolutionCase[];
 }
 
@@ -42,6 +45,68 @@ export const PYTHON_SOLUTION_CASES: Record<string, SolutionSpec> = {
     cases: [
       { args: [[-4, -1, 0, 3, 10]], expected: [0, 1, 9, 16, 100] },
       { args: [[-7, -3, 2, 3, 11]], expected: [4, 9, 9, 49, 121] },
+    ],
+  },
+  "move-zeroes": {
+    fn: "move_zeroes",
+    inPlace: true,
+    cases: [
+      { args: [[0, 1, 0, 3, 12]], expected: [1, 3, 12, 0, 0] },
+      { args: [[0]], expected: [0] },
+    ],
+  },
+  "sort-colors": {
+    fn: "sort_colors",
+    inPlace: true,
+    cases: [
+      { args: [[2, 0, 2, 1, 1, 0]], expected: [0, 0, 1, 1, 2, 2] },
+      { args: [[2, 0, 1]], expected: [0, 1, 2] },
+    ],
+  },
+  "remove-duplicates-sorted": {
+    // Returns the new length k; the in-place rewrite of the prefix is exercised
+    // by the unit test on the frame generator.
+    fn: "remove_duplicates",
+    cases: [
+      { args: [[1, 1, 2]], expected: 2 },
+      { args: [[0, 0, 1, 1, 1, 2, 2, 3, 3, 4]], expected: 5 },
+    ],
+  },
+  "three-sum": {
+    fn: "three_sum",
+    cases: [
+      {
+        args: [[-1, 0, 1, 2, -1, -4]],
+        expected: [
+          [-1, -1, 2],
+          [-1, 0, 1],
+        ],
+      },
+      { args: [[0, 0, 0]], expected: [[0, 0, 0]] },
+    ],
+  },
+  "search-in-rotated-sorted-array": {
+    fn: "search",
+    cases: [
+      { args: [[4, 5, 6, 7, 0, 1, 2], 0], expected: 4 },
+      { args: [[4, 5, 6, 7, 0, 1, 2], 3], expected: -1 },
+      { args: [[1], 0], expected: -1 },
+    ],
+  },
+  "find-first-and-last-position": {
+    fn: "search_range",
+    cases: [
+      { args: [[5, 7, 7, 8, 8, 10], 8], expected: [3, 4] },
+      { args: [[5, 7, 7, 8, 8, 10], 6], expected: [-1, -1] },
+      { args: [[], 0], expected: [-1, -1] },
+    ],
+  },
+  "first-unique-character": {
+    fn: "first_uniq_char",
+    cases: [
+      { args: ["leetcode"], expected: 0 },
+      { args: ["loveleetcode"], expected: 2 },
+      { args: ["aabb"], expected: -1 },
     ],
   },
 };
