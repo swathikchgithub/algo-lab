@@ -208,7 +208,7 @@ def length_of_lis(nums):
     id: "maximum-subarray",
     title: "Maximum Subarray",
     section: "Dynamic Programming",
-    pattern: "dynamic-programming",
+    pattern: "kadane",
     difficulty: "Medium",
     stub: true,
     description: "Content coming soon.",

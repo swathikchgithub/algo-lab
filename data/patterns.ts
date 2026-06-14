@@ -101,7 +101,8 @@ for (let i = 0; i < n; i++) {
   out.push(node.val);
   inorder(node.right, out);
 }`,
-    visualizerSlug: "dfs",
+    // No visualizer yet: the "dfs" visualizer animates a grid maze, the wrong
+    // substrate for trees. Left unset until a tree-traversal visualizer exists.
   },
 
   "tree-properties": {
@@ -255,7 +256,9 @@ dp[0] = base;
 for (let i = 1; i <= n; i++)
   dp[i] = combine(dp[i - 1], dp[i - 2]); // recurrence
 return dp[n];`,
-    visualizerSlug: "kadane",
+    // No visualizer yet: "kadane" only illustrates max-subarray. Most DP
+    // questions (coin change, LCS, edit distance, …) don't fit it, so a generic
+    // DP→kadane link is misleading. The lone Kadane question is tagged "kadane".
   },
 
   backtracking: {

@@ -477,7 +477,7 @@ class Solution {
     id: "minimum-size-subarray-sum",
     title: "Minimum Size Subarray Sum",
     section: "Arrays",
-    pattern: "two-pointers",
+    pattern: "sliding-window",
     difficulty: "Medium",
     description:
       "Find the minimal length of a contiguous subarray whose sum is >= target. Return 0 if none.",
