@@ -5,22 +5,32 @@ import { useState } from "react";
 interface StringInputProps {
   initialValue: string;
   label?: string;
+  /** Optional second text field (e.g. the string `t` to compare against). */
+  param?: { label: string; value: string };
   maxLen?: number;
-  onApply: (value: string) => void;
+  onApply: (value: string, param?: string) => void;
 }
 
 /** Editable, validated text input for string-based visualizers. Mirrors
  *  ArrayInput's look so the two input editors feel identical. */
-export function StringInput({ initialValue, label = "Input", maxLen = 24, onApply }: StringInputProps) {
+export function StringInput({ initialValue, label = "Input", param, maxLen = 24, onApply }: StringInputProps) {
   const [text, setText] = useState(initialValue);
+  const [paramText, setParamText] = useState(param?.value ?? "");
   const [error, setError] = useState<string | null>(null);
 
   const apply = () => {
     const value = text.trim();
     if (value.length === 0) return setError("Enter at least one character.");
     if (value.length > maxLen) return setError(`Keep it to ${maxLen} characters or fewer for a clear view.`);
+
+    let paramValue: string | undefined;
+    if (param) {
+      paramValue = paramText.trim();
+      if (paramValue.length === 0) return setError(`${param.label} can't be empty.`);
+      if (paramValue.length > maxLen) return setError(`Keep ${param.label} to ${maxLen} characters or fewer.`);
+    }
     setError(null);
-    onApply(value);
+    onApply(value, paramValue);
   };
 
   return (
@@ -34,6 +44,16 @@ export function StringInput({ initialValue, label = "Input", maxLen = 24, onAppl
             className="mt-1 w-full rounded-md border border-navy-600 bg-navy-900 px-3 py-2 font-mono text-sm text-slate-100 focus:border-cell-current focus:outline-none"
           />
         </label>
+        {param && (
+          <label className="flex-1 text-xs text-slate-400">
+            {param.label}
+            <input
+              value={paramText}
+              onChange={(e) => setParamText(e.target.value)}
+              className="mt-1 w-full rounded-md border border-navy-600 bg-navy-900 px-3 py-2 font-mono text-sm text-slate-100 focus:border-cell-current focus:outline-none"
+            />
+          </label>
+        )}
         <button
           onClick={apply}
           className="rounded-md bg-cell-current px-4 py-2 text-sm font-semibold text-navy-900 transition hover:bg-amber-400"

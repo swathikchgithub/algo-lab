@@ -23,6 +23,7 @@ import {
   firstUniqueCharFrames,
   type CharsView,
 } from "@/lib/algorithms/firstUniqueChar";
+import { validAnagramCode, validAnagramFrames, type AnagramView } from "@/lib/algorithms/validAnagram";
 import { QuestionWalkthrough } from "./QuestionWalkthrough";
 import { StringWalkthrough } from "./StringWalkthrough";
 import type { LegendItem, StageRow } from "./MultiArrayStage";
@@ -41,6 +42,7 @@ const SUPPORTED = new Set<string>([
   "search-in-rotated-sorted-array",
   "find-first-and-last-position",
   "first-unique-character",
+  "valid-anagram",
 ]);
 
 export function hasQuestionVisualizer(id: string): boolean {
@@ -99,6 +101,12 @@ const SCAN_LEGEND: LegendItem[] = [
   { label: "cursor (i)", swatch: "bg-cell-current" },
   { label: "scanned", swatch: "bg-cell-active" },
   { label: "not yet read", swatch: "bg-navy-700" },
+];
+
+const ANAGRAM_LEGEND: LegendItem[] = [
+  { label: "current char", swatch: "bg-cell-current" },
+  { label: "processed", swatch: "bg-cell-active" },
+  { label: "pending", swatch: "bg-navy-700" },
 ];
 
 /** Single-row stage backed by the live (mutating) array in `frame.view.arr`. */
@@ -289,6 +297,36 @@ export function QuestionVisualizer({ questionId }: { questionId: string }) {
               pointers: frame.pointers ?? {},
             },
           ]}
+        />
+      );
+
+    case "valid-anagram":
+      return (
+        <StringWalkthrough
+          codeLines={validAnagramCode}
+          defaultInput="anagram"
+          inputLabel="s"
+          param={{ label: "t", value: "nagaram" }}
+          patternSlug="string-hashing"
+          generate={(s, t) => validAnagramFrames(s, t ?? "").frames}
+          legend={ANAGRAM_LEGEND}
+          rows={(frame: Frame): StageRow[] => {
+            const v = frame.view as unknown as AnagramView;
+            return [
+              {
+                label: "s",
+                values: v.s,
+                cellStates: v.sStates,
+                pointers: v.sPtr !== null ? { i: v.sPtr } : {},
+              },
+              {
+                label: "t",
+                values: v.t,
+                cellStates: v.tStates,
+                pointers: v.tPtr !== null ? { i: v.tPtr } : {},
+              },
+            ];
+          }}
         />
       );
 

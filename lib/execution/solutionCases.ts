@@ -109,4 +109,12 @@ export const PYTHON_SOLUTION_CASES: Record<string, SolutionSpec> = {
       { args: ["aabb"], expected: -1 },
     ],
   },
+  "valid-anagram": {
+    fn: "is_anagram",
+    cases: [
+      { args: ["anagram", "nagaram"], expected: true },
+      { args: ["rat", "car"], expected: false },
+      { args: ["ab", "abc"], expected: false },
+    ],
+  },
 };
