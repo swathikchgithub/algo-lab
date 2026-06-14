@@ -7,6 +7,7 @@ import { storage } from "@/lib/storage";
 import { PATTERNS } from "@/data/patterns";
 import { getVisualizer } from "@/lib/algorithms/registry";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
+import { QuestionVisualizer, hasQuestionVisualizer } from "@/components/visualizer/QuestionVisualizer";
 import { CodePad } from "./CodePad";
 
 const SOLUTION_LANGS: { key: Language; label: string }[] = [
@@ -45,9 +46,12 @@ export function QuestionDetail({ question }: { question: Question }) {
     setBookmarked((b) => !b);
   };
 
-  // Link to the pattern's visualizer when one exists and is implemented.
+  // A bespoke, question-specific walkthrough takes precedence over the generic
+  // pattern demo; only fall back to the pattern link when there's no bespoke one.
+  const bespokeVisualizer = hasQuestionVisualizer(question.id);
   const visualizerSlug = PATTERNS[question.pattern]?.visualizerSlug;
-  const hasVisualizer = visualizerSlug ? getVisualizer(visualizerSlug)?.implemented : false;
+  const hasVisualizer =
+    !bespokeVisualizer && visualizerSlug ? getVisualizer(visualizerSlug)?.implemented : false;
 
   if (question.stub) {
     return (
@@ -125,6 +129,15 @@ export function QuestionDetail({ question }: { question: Question }) {
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {bespokeVisualizer && (
+        <section className={SECTION}>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+            Visualize
+          </h2>
+          <QuestionVisualizer questionId={question.id} />
         </section>
       )}
 
