@@ -24,6 +24,7 @@ import {
   type CharsView,
 } from "@/lib/algorithms/firstUniqueChar";
 import { validAnagramCode, validAnagramFrames, type AnagramView } from "@/lib/algorithms/validAnagram";
+import { romanToIntCode, romanToIntFrames } from "@/lib/algorithms/romanToInt";
 import { QuestionWalkthrough } from "./QuestionWalkthrough";
 import { StringWalkthrough } from "./StringWalkthrough";
 import type { LegendItem, StageRow } from "./MultiArrayStage";
@@ -43,6 +44,7 @@ const SUPPORTED = new Set<string>([
   "find-first-and-last-position",
   "first-unique-character",
   "valid-anagram",
+  "roman-to-integer",
 ]);
 
 export function hasQuestionVisualizer(id: string): boolean {
@@ -288,6 +290,26 @@ export function QuestionVisualizer({ questionId }: { questionId: string }) {
           inputLabel="String"
           patternSlug="string-hashing"
           generate={(input) => firstUniqueCharFrames(input).frames}
+          legend={SCAN_LEGEND}
+          rows={(frame: Frame) => [
+            {
+              label: "s",
+              values: (frame.view as unknown as CharsView).chars,
+              cellStates: frame.cellStates ?? [],
+              pointers: frame.pointers ?? {},
+            },
+          ]}
+        />
+      );
+
+    case "roman-to-integer":
+      return (
+        <StringWalkthrough
+          codeLines={romanToIntCode}
+          defaultInput="MCMXCIV"
+          inputLabel="Roman numeral"
+          patternSlug="string-hashing"
+          generate={(input) => romanToIntFrames(input).frames}
           legend={SCAN_LEGEND}
           rows={(frame: Frame) => [
             {

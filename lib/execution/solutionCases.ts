@@ -117,4 +117,12 @@ export const PYTHON_SOLUTION_CASES: Record<string, SolutionSpec> = {
       { args: ["ab", "abc"], expected: false },
     ],
   },
+  "roman-to-integer": {
+    fn: "roman_to_int",
+    cases: [
+      { args: ["III"], expected: 3 },
+      { args: ["LVIII"], expected: 58 },
+      { args: ["MCMXCIV"], expected: 1994 },
+    ],
+  },
 };
