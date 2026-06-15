@@ -7,6 +7,7 @@ import { PATTERNS } from "@/data/patterns";
 import { storage } from "@/lib/storage";
 import type { QuestionStatus, Section } from "@/lib/types";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
+import { hasQuestionVisualizer } from "@/components/visualizer/supportedQuestions";
 
 const DIFFICULTIES = ["Easy", "Medium", "Hard"] as const;
 const STATUSES: QuestionStatus[] = ["Not started", "Attempted", "Solved", "Needs review"];
@@ -20,6 +21,7 @@ export default function QuestionsPage() {
   const [difficulty, setDifficulty] = useState<string>("");
   const [company, setCompany] = useState<string>("");
   const [status, setStatus] = useState<string>("");
+  const [onlyViz, setOnlyViz] = useState(false);
   const [statusById, setStatusById] = useState<Record<string, QuestionStatus>>({});
 
   // Read persisted statuses on the client only (storage is SSR-safe but empty on server).
@@ -37,6 +39,7 @@ export default function QuestionsPage() {
     return QUESTIONS.filter((question) => {
       if (section && question.section !== section) return false;
       if (difficulty && question.difficulty !== difficulty) return false;
+      if (onlyViz && !hasQuestionVisualizer(question.id)) return false;
       if (company && !question.companies.includes(company)) return false;
       if (status) {
         const s = statusById[question.id] ?? "Not started";
@@ -46,7 +49,7 @@ export default function QuestionsPage() {
         return false;
       return true;
     });
-  }, [search, section, difficulty, company, status, statusById]);
+  }, [search, section, difficulty, company, status, onlyViz, statusById]);
 
   return (
     <div>
@@ -95,6 +98,18 @@ export default function QuestionsPage() {
             </option>
           ))}
         </select>
+        <button
+          type="button"
+          onClick={() => setOnlyViz((v) => !v)}
+          aria-pressed={onlyViz}
+          className={`rounded-md border px-3 py-2 text-sm transition ${
+            onlyViz
+              ? "border-cell-current/50 bg-cell-current/15 text-amber-200"
+              : "border-navy-600 bg-navy-800 text-slate-300 hover:bg-navy-700"
+          }`}
+        >
+          ▶ Has visualizer
+        </button>
       </div>
 
       <p className="mt-4 text-xs text-slate-500">{filtered.length} matching</p>
@@ -110,6 +125,14 @@ export default function QuestionsPage() {
               >
                 <span className="flex-1 font-medium text-slate-100">
                   {question.title}
+                  {hasQuestionVisualizer(question.id) && (
+                    <span
+                      className="ml-2 align-middle rounded border border-cell-current/40 bg-cell-current/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-200"
+                      title="Has an interactive visualizer"
+                    >
+                      ▶ Visualizer
+                    </span>
+                  )}
                   {question.stub && (
                     <span className="ml-2 align-middle text-xs text-slate-500">(soon)</span>
                   )}

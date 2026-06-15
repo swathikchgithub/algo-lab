@@ -35,29 +35,10 @@ import { QuestionWalkthrough } from "./QuestionWalkthrough";
 import { StringWalkthrough } from "./StringWalkthrough";
 import type { LegendItem, StageRow } from "./MultiArrayStage";
 
-// Question ids that have a bespoke, question-specific walkthrough. Keep in sync
-// with the switch below. The question detail page calls hasQuestionVisualizer()
-// to decide whether to embed one (and to hide the generic pattern-demo link).
-const SUPPORTED = new Set<string>([
-  "trapping-rain-water",
-  "container-with-most-water",
-  "squares-of-sorted-array",
-  "move-zeroes",
-  "sort-colors",
-  "remove-duplicates-sorted",
-  "three-sum",
-  "search-in-rotated-sorted-array",
-  "find-first-and-last-position",
-  "first-unique-character",
-  "valid-anagram",
-  "roman-to-integer",
-  "string-to-integer-atoi",
-  "daily-temperatures",
-]);
-
-export function hasQuestionVisualizer(id: string): boolean {
-  return SUPPORTED.has(id);
-}
+// The supported-id set lives in a light standalone module so list pages can
+// check it without bundling every frame generator. Re-exported here so existing
+// importers (QuestionDetail) keep working. Each id needs a switch case below.
+export { hasQuestionVisualizer } from "./supportedQuestions";
 
 const TRAP_LEGEND: LegendItem[] = [
   { label: "pointer (l, r)", swatch: "bg-cell-current" },
