@@ -135,4 +135,11 @@ export const PYTHON_SOLUTION_CASES: Record<string, SolutionSpec> = {
       { args: ["91283472332"], expected: 2147483647 },
     ],
   },
+  "daily-temperatures": {
+    fn: "daily_temperatures",
+    cases: [
+      { args: [[73, 74, 75, 71, 69, 72, 76, 73]], expected: [1, 1, 4, 2, 1, 1, 0, 0] },
+      { args: [[30, 40, 50, 60]], expected: [1, 1, 1, 0] },
+    ],
+  },
 };

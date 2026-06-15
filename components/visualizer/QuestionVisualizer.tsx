@@ -26,6 +26,11 @@ import {
 import { validAnagramCode, validAnagramFrames, type AnagramView } from "@/lib/algorithms/validAnagram";
 import { romanToIntCode, romanToIntFrames } from "@/lib/algorithms/romanToInt";
 import { myAtoiCode, myAtoiFrames } from "@/lib/algorithms/myAtoi";
+import {
+  dailyTemperaturesCode,
+  dailyTemperaturesFrames,
+  type DailyTempView,
+} from "@/lib/algorithms/dailyTemperatures";
 import { QuestionWalkthrough } from "./QuestionWalkthrough";
 import { StringWalkthrough } from "./StringWalkthrough";
 import type { LegendItem, StageRow } from "./MultiArrayStage";
@@ -47,6 +52,7 @@ const SUPPORTED = new Set<string>([
   "valid-anagram",
   "roman-to-integer",
   "string-to-integer-atoi",
+  "daily-temperatures",
 ]);
 
 export function hasQuestionVisualizer(id: string): boolean {
@@ -111,6 +117,12 @@ const ANAGRAM_LEGEND: LegendItem[] = [
   { label: "current char", swatch: "bg-cell-current" },
   { label: "processed", swatch: "bg-cell-active" },
   { label: "pending", swatch: "bg-navy-700" },
+];
+
+const STACK_LEGEND: LegendItem[] = [
+  { label: "today (i) / stack top", swatch: "bg-cell-current" },
+  { label: "waiting / resolved", swatch: "bg-cell-active" },
+  { label: "untouched / empty", swatch: "bg-navy-700" },
 ];
 
 /** Single-row stage backed by the live (mutating) array in `frame.view.arr`. */
@@ -301,6 +313,39 @@ export function QuestionVisualizer({ questionId }: { questionId: string }) {
               pointers: frame.pointers ?? {},
             },
           ]}
+        />
+      );
+
+    case "daily-temperatures":
+      return (
+        <QuestionWalkthrough
+          codeLines={dailyTemperaturesCode}
+          defaultInput={[73, 74, 75, 71, 69, 72, 76, 73]}
+          patternSlug="monotonic-stack"
+          generate={(input) => dailyTemperaturesFrames(input).frames}
+          legend={STACK_LEGEND}
+          rows={(frame: Frame): StageRow[] => {
+            const v = frame.view as unknown as DailyTempView;
+            return [
+              {
+                label: "temps",
+                values: v.temps,
+                cellStates: v.tempStates,
+                pointers: frame.pointers?.i !== undefined ? { i: frame.pointers.i } : {},
+              },
+              {
+                label: "stack(idx)",
+                values: v.stack,
+                cellStates: v.stackStates,
+                pointers: v.stack.length ? { top: v.stack.length - 1 } : {},
+              },
+              {
+                label: "answer",
+                values: v.res.map((n, k) => (v.resStates[k] === "default" ? "·" : n)),
+                cellStates: v.resStates,
+              },
+            ];
+          }}
         />
       );
 
