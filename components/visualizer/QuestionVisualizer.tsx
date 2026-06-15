@@ -25,6 +25,7 @@ import {
 } from "@/lib/algorithms/firstUniqueChar";
 import { validAnagramCode, validAnagramFrames, type AnagramView } from "@/lib/algorithms/validAnagram";
 import { romanToIntCode, romanToIntFrames } from "@/lib/algorithms/romanToInt";
+import { myAtoiCode, myAtoiFrames } from "@/lib/algorithms/myAtoi";
 import { QuestionWalkthrough } from "./QuestionWalkthrough";
 import { StringWalkthrough } from "./StringWalkthrough";
 import type { LegendItem, StageRow } from "./MultiArrayStage";
@@ -45,6 +46,7 @@ const SUPPORTED = new Set<string>([
   "first-unique-character",
   "valid-anagram",
   "roman-to-integer",
+  "string-to-integer-atoi",
 ]);
 
 export function hasQuestionVisualizer(id: string): boolean {
@@ -295,6 +297,27 @@ export function QuestionVisualizer({ questionId }: { questionId: string }) {
             {
               label: "s",
               values: (frame.view as unknown as CharsView).chars,
+              cellStates: frame.cellStates ?? [],
+              pointers: frame.pointers ?? {},
+            },
+          ]}
+        />
+      );
+
+    case "string-to-integer-atoi":
+      return (
+        <StringWalkthrough
+          codeLines={myAtoiCode}
+          defaultInput="   -42"
+          inputLabel="String"
+          trim={false}
+          patternSlug="string-hashing"
+          generate={(input) => myAtoiFrames(input).frames}
+          legend={SCAN_LEGEND}
+          rows={(frame: Frame) => [
+            {
+              label: "s",
+              values: (frame.view as unknown as CharsView).chars.map((c) => (c === " " ? "␣" : c)),
               cellStates: frame.cellStates ?? [],
               pointers: frame.pointers ?? {},
             },

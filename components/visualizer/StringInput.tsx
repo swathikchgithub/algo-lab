@@ -7,19 +7,22 @@ interface StringInputProps {
   label?: string;
   /** Optional second text field (e.g. the string `t` to compare against). */
   param?: { label: string; value: string };
+  /** Trim surrounding whitespace before applying (default true). Set false when
+   *  spaces are significant, e.g. atoi's leading-space handling. */
+  trim?: boolean;
   maxLen?: number;
   onApply: (value: string, param?: string) => void;
 }
 
 /** Editable, validated text input for string-based visualizers. Mirrors
  *  ArrayInput's look so the two input editors feel identical. */
-export function StringInput({ initialValue, label = "Input", param, maxLen = 24, onApply }: StringInputProps) {
+export function StringInput({ initialValue, label = "Input", param, trim = true, maxLen = 24, onApply }: StringInputProps) {
   const [text, setText] = useState(initialValue);
   const [paramText, setParamText] = useState(param?.value ?? "");
   const [error, setError] = useState<string | null>(null);
 
   const apply = () => {
-    const value = text.trim();
+    const value = trim ? text.trim() : text;
     if (value.length === 0) return setError("Enter at least one character.");
     if (value.length > maxLen) return setError(`Keep it to ${maxLen} characters or fewer for a clear view.`);
 

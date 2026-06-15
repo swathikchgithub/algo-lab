@@ -18,6 +18,8 @@ export interface StringWalkthroughProps {
   inputLabel?: string;
   /** Optional second string input (e.g. the string `t` to compare against). */
   param?: { label: string; value: string };
+  /** Trim surrounding whitespace before applying (default true). */
+  trim?: boolean;
   /** Pattern slug for the ELI5 analogy panel, if any. */
   patternSlug?: string;
   /** Pure frame generator for this specific question. The second string `param`
@@ -38,6 +40,7 @@ export function StringWalkthrough({
   defaultInput,
   inputLabel = "String",
   param,
+  trim = true,
   patternSlug,
   generate,
   rows,
@@ -63,6 +66,7 @@ export function StringWalkthrough({
         initialValue={input}
         label={inputLabel}
         param={param}
+        trim={trim}
         onApply={(v, p) => {
           setInput(v);
           setParamVal(p);

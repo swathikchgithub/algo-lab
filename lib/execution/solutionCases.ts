@@ -125,4 +125,14 @@ export const PYTHON_SOLUTION_CASES: Record<string, SolutionSpec> = {
       { args: ["MCMXCIV"], expected: 1994 },
     ],
   },
+  "string-to-integer-atoi": {
+    fn: "my_atoi",
+    cases: [
+      { args: ["42"], expected: 42 },
+      { args: ["   -42"], expected: -42 },
+      { args: ["4193 with words"], expected: 4193 },
+      { args: ["words and 987"], expected: 0 },
+      { args: ["91283472332"], expected: 2147483647 },
+    ],
+  },
 };
