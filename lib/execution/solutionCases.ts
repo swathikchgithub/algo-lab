@@ -20,9 +20,12 @@ export interface SolutionSpec {
   /** True when the function mutates its first argument in place and returns
    *  nothing (e.g. move_zeroes, sort_colors) — compare the argument, not the return. */
   inPlace?: boolean;
-  /** "tree": first arg is a LeetCode level-order array; build a TreeNode from it
-   *  (via an injected TreeNode + build_tree preamble) before calling. */
-  adapter?: "tree";
+  /** How to adapt args/return for non-primitive shapes (injected Python preamble):
+   *  - "tree": first arg is a level-order array → build a TreeNode.
+   *  - "list": first arg is an array → build a ListNode; serialize the returned node.
+   *  - "list-cycle": args are [values, pos] → build a (possibly cyclic) list; bool return.
+   *  - "list2": two array args → two ListNodes; serialize the returned node. */
+  adapter?: "tree" | "list" | "list-cycle" | "list2";
   cases: SolutionCase[];
 }
 
@@ -248,6 +251,66 @@ export const PYTHON_SOLUTION_CASES: Record<string, SolutionSpec> = {
     cases: [
       { args: [[3, 9, 20, null, null, 15, 7]], expected: [3, 14.5, 11] },
       { args: [[1, 2, 3]], expected: [1, 2.5] },
+    ],
+  },
+  "reverse-linked-list": {
+    fn: "reverse_list",
+    adapter: "list",
+    cases: [
+      { args: [[1, 2, 3, 4, 5]], expected: [5, 4, 3, 2, 1] },
+      { args: [[1]], expected: [1] },
+      { args: [[]], expected: [] },
+    ],
+  },
+  "middle-of-the-linked-list": {
+    fn: "middle_node",
+    adapter: "list",
+    cases: [
+      { args: [[1, 2, 3, 4, 5]], expected: [3, 4, 5] },
+      { args: [[1, 2, 3, 4, 5, 6]], expected: [4, 5, 6] },
+    ],
+  },
+  "linked-list-cycle": {
+    fn: "has_cycle",
+    adapter: "list-cycle",
+    cases: [
+      { args: [[3, 2, 0, -4], 1], expected: true },
+      { args: [[1, 2], -1], expected: false },
+      { args: [[1], -1], expected: false },
+    ],
+  },
+  "climbing-stairs": {
+    fn: "climb_stairs",
+    cases: [
+      { args: [2], expected: 2 },
+      { args: [3], expected: 3 },
+      { args: [5], expected: 8 },
+    ],
+  },
+  "next-greater-element-i": {
+    fn: "next_greater_element",
+    cases: [
+      { args: [[4, 1, 2], [1, 3, 4, 2]], expected: [-1, 3, -1] },
+      { args: [[2, 4], [1, 2, 3, 4]], expected: [3, -1] },
+    ],
+  },
+  "flood-fill": {
+    fn: "flood_fill",
+    cases: [
+      {
+        args: [[[1, 1, 1], [1, 1, 0], [1, 0, 1]], 1, 1, 2],
+        expected: [[2, 2, 2], [2, 2, 0], [2, 0, 1]],
+      },
+      { args: [[[0, 0], [0, 0]], 0, 0, 0], expected: [[0, 0], [0, 0]] },
+    ],
+  },
+  "merge-two-sorted-lists": {
+    fn: "merge_two_lists",
+    adapter: "list2",
+    cases: [
+      { args: [[1, 2, 4], [1, 3, 4]], expected: [1, 1, 2, 3, 4, 4] },
+      { args: [[], []], expected: [] },
+      { args: [[], [0]], expected: [0] },
     ],
   },
 };

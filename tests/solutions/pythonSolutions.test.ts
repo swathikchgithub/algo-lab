@@ -30,6 +30,30 @@ def _build_tree(vals):
     return root
 `;
 
+// Injected for linked-list questions: a ListNode + builders/serializer.
+const LIST_PREAMBLE = `
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val; self.next = next
+def _build_list(vals):
+    dummy = ListNode(); t = dummy
+    for v in vals:
+        t.next = ListNode(v); t = t.next
+    return dummy.next
+def _to_array(node):
+    out = []
+    while node:
+        out.append(node.val); node = node.next
+    return out
+def _build_cycle_list(vals, pos):
+    nodes = [ListNode(v) for v in vals]
+    for i in range(len(nodes) - 1):
+        nodes[i].next = nodes[i + 1]
+    if pos is not None and pos >= 0 and nodes:
+        nodes[-1].next = nodes[pos]
+    return nodes[0] if nodes else None
+`;
+
 /** Build a self-checking Python program: the solution + a driver that compares.
  *  For in-place functions, the mutated first argument is the result. For the
  *  "tree" adapter, the first arg (a level-order list) is built into a TreeNode. */
@@ -44,8 +68,21 @@ function buildProgram(
   // values compare exactly without any JS→Python literal translation.
   const argsJson = JSON.stringify(args);
   const expectedJson = JSON.stringify(expected);
-  const preamble = adapter === "tree" ? TREE_PREAMBLE : "";
-  const call = adapter === "tree" ? `${fn}(_build_tree(_args[0]))` : `${fn}(*_args)`;
+  let preamble = "";
+  let call = `${fn}(*_args)`;
+  if (adapter === "tree") {
+    preamble = TREE_PREAMBLE;
+    call = `${fn}(_build_tree(_args[0]))`;
+  } else if (adapter === "list") {
+    preamble = LIST_PREAMBLE;
+    call = `_to_array(${fn}(_build_list(_args[0])))`;
+  } else if (adapter === "list-cycle") {
+    preamble = LIST_PREAMBLE;
+    call = `${fn}(_build_cycle_list(_args[0], _args[1]))`;
+  } else if (adapter === "list2") {
+    preamble = LIST_PREAMBLE;
+    call = `_to_array(${fn}(_build_list(_args[0]), _build_list(_args[1])))`;
+  }
   const got = inPlace ? "_args[0]" : "_ret";
   return `${solution}
 ${preamble}

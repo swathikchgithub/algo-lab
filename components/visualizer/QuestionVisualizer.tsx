@@ -62,9 +62,30 @@ import {
   balancedFrames,
 } from "@/lib/algorithms/treeProperties";
 import { averageOfLevelsCode, averageOfLevelsFrames } from "@/lib/algorithms/treeLevelOrder";
+import {
+  reverseListCode,
+  reverseListFrames,
+  middleNodeCode,
+  middleNodeFrames,
+  hasCycleCode,
+  hasCycleFrames,
+} from "@/lib/algorithms/linkedListOps";
 import { QuestionWalkthrough } from "./QuestionWalkthrough";
 import { StringWalkthrough } from "./StringWalkthrough";
 import { TreeWalkthrough } from "./TreeWalkthrough";
+import { climbingStairsCode, climbingStairsFrames, type StairsView } from "@/lib/algorithms/climbingStairs";
+import {
+  nextGreaterElementCode,
+  nextGreaterElementFrames,
+  type NgeView,
+} from "@/lib/algorithms/nextGreaterElement";
+import { mergeListsCode, mergeListsFrames, type MergeView } from "@/lib/algorithms/mergeLists";
+import { LinkedListWalkthrough } from "./LinkedListWalkthrough";
+import { FloodFillVisualizer } from "./FloodFillVisualizer";
+
+/** Parse a comma-separated numeric string into an array (for text-input arrays). */
+const parseNums = (s: string): number[] =>
+  s.split(",").map((t) => Number(t.trim())).filter((x) => Number.isFinite(x));
 import type { LegendItem, StageRow } from "./MultiArrayStage";
 
 // The supported-id set lives in a light standalone module so list pages can
@@ -550,6 +571,105 @@ export function QuestionVisualizer({ questionId }: { questionId: string }) {
           patternSlug="tree-traversal"
           generate={(input) => averageOfLevelsFrames(input).frames}
           legend={TREE_LEGEND}
+        />
+      );
+
+    case "flood-fill":
+      return <FloodFillVisualizer />;
+
+    case "merge-two-sorted-lists":
+      return (
+        <StringWalkthrough
+          codeLines={mergeListsCode}
+          defaultInput="1,2,4"
+          inputLabel="list1"
+          param={{ label: "list2", value: "1,3,4" }}
+          patternSlug="linked-list"
+          generate={(s, t) => mergeListsFrames(parseNums(s), parseNums(t ?? "")).frames}
+          legend={POINTER_LEGEND}
+          rows={(frame: Frame): StageRow[] => {
+            const v = frame.view as unknown as MergeView;
+            return [
+              { label: "list1", values: v.list1, cellStates: v.list1States },
+              { label: "list2", values: v.list2, cellStates: v.list2States },
+              { label: "merged", values: v.merged, cellStates: v.mergedStates },
+            ];
+          }}
+        />
+      );
+
+    case "climbing-stairs":
+      return (
+        <StringWalkthrough
+          codeLines={climbingStairsCode}
+          defaultInput="5"
+          inputLabel="n (number of stairs)"
+          patternSlug="dynamic-programming"
+          generate={(input) => climbingStairsFrames(Number(input) || 1).frames}
+          legend={SCAN_LEGEND}
+          rows={(frame: Frame) => {
+            const v = frame.view as unknown as StairsView;
+            return [
+              {
+                label: "ways",
+                values: v.dp.map((n, k) => (v.dpStates[k] === "default" ? "·" : n)),
+                cellStates: v.dpStates,
+              },
+            ];
+          }}
+        />
+      );
+
+    case "next-greater-element-i":
+      return (
+        <StringWalkthrough
+          codeLines={nextGreaterElementCode}
+          defaultInput="4,1,2"
+          inputLabel="nums1"
+          param={{ label: "nums2", value: "1,3,4,2" }}
+          patternSlug="monotonic-stack"
+          generate={(s, t) => nextGreaterElementFrames(parseNums(s), parseNums(t ?? "")).frames}
+          legend={STACK_LEGEND}
+          rows={(frame: Frame): StageRow[] => {
+            const v = frame.view as unknown as NgeView;
+            return [
+              { label: "nums2", values: v.nums2, cellStates: v.nums2States },
+              { label: "stack", values: v.stack, cellStates: v.stackStates },
+              { label: "nums1", values: v.nums1, cellStates: v.nums1States },
+              { label: "ans", values: v.ans, cellStates: v.ansStates },
+            ];
+          }}
+        />
+      );
+
+    case "reverse-linked-list":
+      return (
+        <LinkedListWalkthrough
+          codeLines={reverseListCode}
+          defaultInput={[1, 2, 3, 4, 5]}
+          patternSlug="linked-list"
+          generate={(input) => reverseListFrames(input).frames}
+        />
+      );
+
+    case "middle-of-the-linked-list":
+      return (
+        <LinkedListWalkthrough
+          codeLines={middleNodeCode}
+          defaultInput={[1, 2, 3, 4, 5]}
+          patternSlug="linked-list"
+          generate={(input) => middleNodeFrames(input).frames}
+        />
+      );
+
+    case "linked-list-cycle":
+      return (
+        <LinkedListWalkthrough
+          codeLines={hasCycleCode}
+          defaultInput={[3, 2, 0, -4]}
+          param={{ label: "pos (cycle idx, -1 = none)", value: 1 }}
+          patternSlug="linked-list"
+          generate={(input, pos) => hasCycleFrames(input, pos ?? -1).frames}
         />
       );
 

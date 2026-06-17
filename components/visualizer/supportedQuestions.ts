@@ -36,6 +36,17 @@ export const SUPPORTED_VISUALIZER_IDS: ReadonlySet<string> = new Set([
   "minimum-depth-of-binary-tree",
   "diameter-of-binary-tree",
   "balanced-binary-tree",
+  // Linked Lists
+  "reverse-linked-list",
+  "middle-of-the-linked-list",
+  "linked-list-cycle",
+  "merge-two-sorted-lists",
+  // Dynamic Programming
+  "climbing-stairs",
+  // Stacks & Queues
+  "next-greater-element-i",
+  // Graphs
+  "flood-fill",
 ]);
 
 export function hasQuestionVisualizer(id: string): boolean {

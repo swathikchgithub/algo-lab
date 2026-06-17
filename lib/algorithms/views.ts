@@ -11,23 +11,25 @@ export interface AuxList {
   orientation: "vertical" | "horizontal";
 }
 
-/** DFS / BFS on a grid. */
-export interface GridView {
+/** DFS / BFS on a grid. A `type` (not `interface`) so it's assignable to
+ *  Frame.view's Record type when produced by a helper. */
+export type GridView = {
   /** Per-cell visual state, [row][col]. */
   grid: CellState[][];
   /** Optional per-cell label (e.g. visit order, or "#" for a wall). */
   labels?: Array<Array<string | number>>;
   /** Call stack (DFS) or queue (BFS). */
   aux?: AuxList;
-}
+};
 
-/** Binary heap drawn as a tree. */
-export interface TreeView {
+/** Binary heap drawn as a tree. A `type` (not `interface`) so it's assignable
+ *  to Frame.view's Record type when produced by a helper. */
+export type TreeView = {
   /** Level-order values (index 0 = root). */
   heap: number[];
   /** Visual state parallel to `heap`. */
   states: CellState[];
-}
+};
 
 /** Hash table with separate-chaining buckets. */
 export interface BucketView {
