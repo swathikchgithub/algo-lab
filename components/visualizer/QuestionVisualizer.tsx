@@ -31,8 +31,40 @@ import {
   dailyTemperaturesFrames,
   type DailyTempView,
 } from "@/lib/algorithms/dailyTemperatures";
+import {
+  asteroidCollisionCode,
+  asteroidCollisionFrames,
+  type AsteroidView,
+} from "@/lib/algorithms/asteroidCollision";
+import {
+  binarySearchCode,
+  searchInsertCode,
+  binarySearchFrames,
+} from "@/lib/algorithms/binarySearchBasic";
+import { twoSumSortedCode, twoSumSortedFrames } from "@/lib/algorithms/twoSumSorted";
+import { longestPalindromeCode, longestPalindromeFrames } from "@/lib/algorithms/longestPalindrome";
+import {
+  inorderCode,
+  inorderFrames,
+  preorderCode,
+  preorderFrames,
+  postorderCode,
+  postorderFrames,
+} from "@/lib/algorithms/treeTraversal";
+import {
+  maxDepthCode,
+  maxDepthFrames,
+  minDepthCode,
+  minDepthFrames,
+  diameterCode,
+  diameterFrames,
+  balancedCode,
+  balancedFrames,
+} from "@/lib/algorithms/treeProperties";
+import { averageOfLevelsCode, averageOfLevelsFrames } from "@/lib/algorithms/treeLevelOrder";
 import { QuestionWalkthrough } from "./QuestionWalkthrough";
 import { StringWalkthrough } from "./StringWalkthrough";
+import { TreeWalkthrough } from "./TreeWalkthrough";
 import type { LegendItem, StageRow } from "./MultiArrayStage";
 
 // The supported-id set lives in a light standalone module so list pages can
@@ -104,6 +136,12 @@ const STACK_LEGEND: LegendItem[] = [
   { label: "today (i) / stack top", swatch: "bg-cell-current" },
   { label: "waiting / resolved", swatch: "bg-cell-active" },
   { label: "untouched / empty", swatch: "bg-navy-700" },
+];
+
+const TREE_LEGEND: LegendItem[] = [
+  { label: "current node", swatch: "bg-cell-current" },
+  { label: "on stack / output", swatch: "bg-cell-active" },
+  { label: "visited", swatch: "bg-navy-800" },
 ];
 
 /** Single-row stage backed by the live (mutating) array in `frame.view.arr`. */
@@ -327,6 +365,191 @@ export function QuestionVisualizer({ questionId }: { questionId: string }) {
               },
             ];
           }}
+        />
+      );
+
+    case "asteroid-collision":
+      return (
+        <QuestionWalkthrough
+          codeLines={asteroidCollisionCode}
+          defaultInput={[5, 10, -5]}
+          patternSlug="monotonic-stack"
+          generate={(input) => asteroidCollisionFrames(input).frames}
+          legend={STACK_LEGEND}
+          rows={(frame: Frame): StageRow[] => {
+            const v = frame.view as unknown as AsteroidView;
+            return [
+              {
+                label: "asteroids",
+                values: v.asteroids,
+                cellStates: v.astStates,
+                pointers: frame.pointers?.i !== undefined ? { i: frame.pointers.i } : {},
+              },
+              {
+                label: "stack",
+                values: v.stack,
+                cellStates: v.stackStates,
+                pointers: v.stack.length ? { top: v.stack.length - 1 } : {},
+              },
+            ];
+          }}
+        />
+      );
+
+    case "two-sum-sorted":
+      return (
+        <QuestionWalkthrough
+          codeLines={twoSumSortedCode}
+          defaultInput={[2, 7, 11, 15]}
+          param={{ label: "target", value: 9 }}
+          patternSlug="two-pointers"
+          generate={(input, target) => twoSumSortedFrames(input, target ?? 0).frames}
+          legend={POINTER_LEGEND}
+          rows={(frame: Frame) => [mutatingRow(frame, "numbers")]}
+        />
+      );
+
+    case "binary-search":
+      return (
+        <QuestionWalkthrough
+          codeLines={binarySearchCode}
+          defaultInput={[-1, 0, 3, 5, 9, 12]}
+          param={{ label: "target", value: 9 }}
+          patternSlug="binary-search"
+          generate={(input, target) => binarySearchFrames(input, target ?? 0, "find").frames}
+          legend={SEARCH_LEGEND}
+          rows={(frame: Frame) => [mutatingRow(frame, "nums")]}
+        />
+      );
+
+    case "search-insert-position":
+      return (
+        <QuestionWalkthrough
+          codeLines={searchInsertCode}
+          defaultInput={[1, 3, 5, 6]}
+          param={{ label: "target", value: 2 }}
+          patternSlug="binary-search"
+          generate={(input, target) => binarySearchFrames(input, target ?? 0, "insert").frames}
+          legend={SEARCH_LEGEND}
+          rows={(frame: Frame) => [mutatingRow(frame, "nums")]}
+        />
+      );
+
+    case "longest-palindrome-rearrangement":
+      return (
+        <StringWalkthrough
+          codeLines={longestPalindromeCode}
+          defaultInput="abccccdd"
+          inputLabel="String"
+          patternSlug="string-hashing"
+          generate={(input) => longestPalindromeFrames(input).frames}
+          legend={ANAGRAM_LEGEND}
+          rows={(frame: Frame) => [
+            {
+              label: "s",
+              values: (frame.view as unknown as CharsView).chars,
+              cellStates: frame.cellStates ?? [],
+              pointers: frame.pointers ?? {},
+            },
+          ]}
+        />
+      );
+
+    case "binary-tree-inorder-traversal":
+      return (
+        <TreeWalkthrough
+          codeLines={inorderCode}
+          defaultInput="1,null,2,3"
+          patternSlug="tree-traversal"
+          generate={(input) => inorderFrames(input).frames}
+          legend={TREE_LEGEND}
+        />
+      );
+
+    case "binary-tree-preorder-traversal":
+      return (
+        <TreeWalkthrough
+          codeLines={preorderCode}
+          defaultInput="1,null,2,3"
+          patternSlug="tree-traversal"
+          generate={(input) => preorderFrames(input).frames}
+          legend={TREE_LEGEND}
+        />
+      );
+
+    case "binary-tree-postorder-traversal":
+      return (
+        <TreeWalkthrough
+          codeLines={postorderCode}
+          defaultInput="1,null,2,3"
+          patternSlug="tree-traversal"
+          generate={(input) => postorderFrames(input).frames}
+          legend={TREE_LEGEND}
+        />
+      );
+
+    case "maximum-depth-of-binary-tree":
+      return (
+        <TreeWalkthrough
+          codeLines={maxDepthCode}
+          defaultInput="3,9,20,null,null,15,7"
+          auxLabel="call stack"
+          outputLabel="returns"
+          patternSlug="tree-properties"
+          generate={(input) => maxDepthFrames(input).frames}
+          legend={TREE_LEGEND}
+        />
+      );
+
+    case "minimum-depth-of-binary-tree":
+      return (
+        <TreeWalkthrough
+          codeLines={minDepthCode}
+          defaultInput="3,9,20,null,null,15,7"
+          auxLabel="call stack"
+          outputLabel="returns"
+          patternSlug="tree-properties"
+          generate={(input) => minDepthFrames(input).frames}
+          legend={TREE_LEGEND}
+        />
+      );
+
+    case "diameter-of-binary-tree":
+      return (
+        <TreeWalkthrough
+          codeLines={diameterCode}
+          defaultInput="1,2,3,4,5"
+          auxLabel="call stack"
+          outputLabel="heights"
+          patternSlug="tree-properties"
+          generate={(input) => diameterFrames(input).frames}
+          legend={TREE_LEGEND}
+        />
+      );
+
+    case "balanced-binary-tree":
+      return (
+        <TreeWalkthrough
+          codeLines={balancedCode}
+          defaultInput="3,9,20,null,null,15,7"
+          auxLabel="call stack"
+          outputLabel="returns"
+          patternSlug="tree-properties"
+          generate={(input) => balancedFrames(input).frames}
+          legend={TREE_LEGEND}
+        />
+      );
+
+    case "average-of-levels-in-binary-tree":
+      return (
+        <TreeWalkthrough
+          codeLines={averageOfLevelsCode}
+          defaultInput="3,9,20,null,null,15,7"
+          auxLabel="queue"
+          outputLabel="averages"
+          patternSlug="tree-traversal"
+          generate={(input) => averageOfLevelsFrames(input).frames}
+          legend={TREE_LEGEND}
         />
       );
 

@@ -12,16 +12,30 @@ export const SUPPORTED_VISUALIZER_IDS: ReadonlySet<string> = new Set([
   "sort-colors",
   "remove-duplicates-sorted",
   "three-sum",
+  "two-sum-sorted",
   // Binary Search
   "search-in-rotated-sorted-array",
   "find-first-and-last-position",
+  "binary-search",
+  "search-insert-position",
   // Strings
   "first-unique-character",
   "valid-anagram",
   "roman-to-integer",
   "string-to-integer-atoi",
+  "longest-palindrome-rearrangement",
   // Stacks & Queues
   "daily-temperatures",
+  "asteroid-collision",
+  // Trees
+  "binary-tree-inorder-traversal",
+  "binary-tree-preorder-traversal",
+  "binary-tree-postorder-traversal",
+  "average-of-levels-in-binary-tree",
+  "maximum-depth-of-binary-tree",
+  "minimum-depth-of-binary-tree",
+  "diameter-of-binary-tree",
+  "balanced-binary-tree",
 ]);
 
 export function hasQuestionVisualizer(id: string): boolean {
